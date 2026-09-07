@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SIPERKASA LAJER Online</title>
+<style>
+:root{--p:#18344d;--p2:#265a7d;--bg:#f3f6f8;--card:#fff;--line:#dce3e8;--text:#1f2937;--muted:#687386;--red:#991b1b;--green:#166534;--yellow:#92400e}
+*{box-sizing:border-box}body{margin:0;font:14px Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:23px}.sub{opacity:.88;font-size:12px;margin-top:4px}.userbar{display:flex;align-items:center;gap:8px}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:8px 14px;display:flex;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
+nav button,.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 11px;font-weight:700;cursor:pointer}nav button.active,.btn.primary{background:var(--p);color:#fff;border-color:var(--p)}
+.btn.danger{background:#fee2e2;color:#991b1b}.btn.ok{background:#dcfce7;color:#166534}.btn.warn{background:#fef3c7;color:#92400e}
+main{max-width:1250px;margin:18px auto;padding:0 15px 50px}.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px}.metric{grid-column:span 3}.half{grid-column:span 6}.full{grid-column:1/-1}
+.metric .v{font-size:28px;font-weight:800}.muted{color:var(--muted)}label{display:block;font-weight:700;margin:7px 0 4px}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;background:#fff}textarea{min-height:80px}
+.form{display:grid;grid-template-columns:repeat(2,1fr);gap:9px 12px}.span2{grid-column:1/-1}.tools{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f8fafc}.wrap{overflow:auto;max-height:520px}
+.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800}.red{background:#fee2e2;color:var(--red)}.green{background:#dcfce7;color:var(--green)}.yellow{background:#fef3c7;color:var(--yellow)}.blue{background:#dbeafe;color:#1d4ed8}
+#login{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;background:linear-gradient(135deg,#17324d,#315f7c)}
+.loginbox{width:min(420px,100%);background:#fff;padding:25px;border-radius:15px}.loginbox h2{margin-top:0}.alert{padding:10px;border-radius:8px;background:#eef2ff;margin:9px 0}
+@media(max-width:850px){.metric,.half{grid-column:1/-1}.form{grid-template-columns:1fr}.span2{grid-column:auto}}
+@media print{nav,.no-print,header{display:none!important}body{background:#fff}.card{border:0}.page{display:none!important}.page.active{display:block!important}}
+</style>
+</head>
+<body>
+<div id="login">
+ <form class="loginbox" id="loginForm">
+   <h2>SIPERKASA LAJER</h2>
+   <p class="muted">Online • Multi User • Multi Device</p>
+   <label>Username</label><input id="loginUser" autocomplete="username" required>
+   <label>Password</label><input id="loginPass" type="password" autocomplete="current-password" required>
+   <div id="loginMsg"></div>
+   <button class="btn primary" style="width:100%;margin-top:12px">Masuk</button>
+ </form>
+</div>
+
+<div id="app" hidden>
+<header>
+ <div><h1>SIPERKASA LAJER</h1><div class="sub">Sistem Pengamanan Berbasis Risiko — Lapas Kelas IIA Jember</div></div>
+ <div class="userbar"><span id="userLabel"></span><button class="btn" onclick="logout()">Keluar</button></div>
+</header>
+<nav id="nav">
+ <button data-p="dashboard" class="active">Dashboard</button>
+ <button data-p="blocks">Blok</button>
+ <button data-p="wbp">Risiko WBP</button>
+ <button data-p="patrols">Kontrol</button>
+ <button data-p="incidents">Insiden</button>
+ <button data-p="reports">Laporan</button>
+ <button data-p="users" class="adminOnly">Pengguna</button>
+ <button data-p="audit" class="managerOnly">Audit</button>
+ <button data-p="settings" class="managerOnly">Pengaturan</button>
+</nav>
+<main>
+<section id="dashboard" class="page active"><div class="grid">
+ <div class="card metric"><div class="muted">Kapasitas</div><div class="v" id="dCap">-</div></div>
+ <div class="card metric"><div class="muted">Penghuni</div><div class="v" id="dOcc">-</div></div>
+ <div class="card metric"><div class="muted">Tingkat Hunian</div><div class="v" id="dRate">-</div></div>
+ <div class="card metric"><div class="muted">Kelebihan</div><div class="v" id="dExc">-</div></div>
+ <div class="card half"><h3>Ringkasan Risiko</h3><p>WBP risiko tinggi: <b id="dWbp">0</b></p><p>Kontrol 7 hari: <b id="dPat">0</b></p><p>Insiden 30 hari: <b id="dInc">0</b></p></div>
+ <div class="card half"><h3>Arah Intervensi</h3><div class="alert">Prioritaskan blok/WBP berisiko tinggi, deteksi dini, konsistensi SOP, dan tindak lanjut berbasis data.</div></div>
+ <div class="card full"><h3>Blok Prioritas</h3><div class="wrap"><table><thead><tr><th>Blok</th><th>Kapasitas</th><th>Penghuni</th><th>Hunian</th><th>Skor</th><th>Status</th></tr></thead><tbody id="dBlocks"></tbody></table></div></div>
+</div></section>
+
+<section id="blocks" class="page"><div class="grid">
+ <div class="card half"><h2>Data Blok</h2><form id="blockForm"><input type="hidden" id="blockId"><div class="form">
+ <div><label>Nama Blok</label><input id="blockName" required></div><div><label>Kapasitas</label><input id="blockCap" type="number" min="0" required></div>
+ <div><label>Penghuni</label><input id="blockOcc" type="number" min="0" required></div><div><label>Kerawanan 1–5</label><input id="blockThreat" type="number" min="1" max="5" value="3" required></div>
+ <div class="span2"><label>Catatan</label><textarea id="blockNotes"></textarea></div></div>
+ <div class="tools"><button class="btn primary">Simpan</button><button type="button" class="btn" onclick="resetBlock()">Bersihkan</button></div></form></div>
+ <div class="card half"><h3>Rumus Prioritas</h3><p class="muted">Skor blok menggabungkan tingkat kepadatan hunian dan skor kerawanan 1–5. Skor ≥ 4 = Tinggi; ≥ 2,8 = Sedang.</p></div>
+ <div class="card full"><div class="wrap"><table><thead><tr><th>Blok</th><th>Kapasitas</th><th>Penghuni</th><th>Hunian</th><th>Skor</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="blockRows"></tbody></table></div></div>
+</div></section>
+
+<section id="wbp" class="page"><div class="grid">
+ <div class="card half"><h2>Penilaian Risiko WBP</h2><form id="wbpForm"><input type="hidden" id="wbpId"><div class="form">
+ <div><label>Identitas/Inisial</label><input id="wbpName" required></div><div><label>No. Registrasi</label><input id="wbpReg"></div>
+ <div><label>Blok</label><select id="wbpBlock"></select></div><div><label>Pelanggaran 0–5</label><input id="wbpV" type="number" min="0" max="5" value="0"></div>
+ <div><label>Konflik 0–5</label><input id="wbpC" type="number" min="0" max="5" value="0"></div><div><label>Pelarian 0–5</label><input id="wbpE" type="number" min="0" max="5" value="0"></div>
+ <div><label>Barang Terlarang 0–5</label><input id="wbpB" type="number" min="0" max="5" value="0"></div><div class="span2"><label>Catatan</label><textarea id="wbpNotes"></textarea></div></div>
+ <div class="tools"><button class="btn primary">Simpan</button><button type="button" class="btn" onclick="resetWbp()">Bersihkan</button></div></form></div>
+ <div class="card half"><h3>Kategori</h3><p><span class="badge green">Rendah 0–5</span></p><p><span class="badge yellow">Sedang 6–12</span></p><p><span class="badge red">Tinggi 13–20</span></p><p class="muted">Instrumen ini alat bantu operasional dan tidak menggantikan asesmen resmi.</p></div>
+ <div class="card full"><div class="wrap"><table><thead><tr><th>Identitas</th><th>Registrasi</th><th>Blok</th><th>Skor</th><th>Status</th><th>Catatan</th><th>Aksi</th></tr></thead><tbody id="wbpRows"></tbody></table></div></div>
+</div></section>
+
+<section id="patrols" class="page"><div class="grid">
+ <div class="card half"><h2>Kontrol & Deteksi Dini</h2><form id="patrolForm"><div class="form">
+ <div><label>Waktu</label><input id="patrolDate" type="datetime-local" required></div><div><label>Blok</label><select id="patrolBlock"></select></div>
+ <div><label>Petugas/Regu</label><input id="patrolOfficer" required></div><div><label>Level</label><select id="patrolLevel"><option>Normal</option><option>Perlu Perhatian</option><option>Kritis</option></select></div>
+ <div class="span2"><label>Temuan</label><textarea id="patrolFinding" required></textarea></div><div class="span2"><label>Tindak Lanjut</label><textarea id="patrolAction" required></textarea></div></div>
+ <button class="btn primary">Simpan Kontrol</button></form></div>
+ <div class="card half"><h3>Checklist</h3><p>□ Pintu/teralis/gembok</p><p>□ Jumlah penghuni</p><p>□ Kerumunan/potensi konflik</p><p>□ Barang terlarang</p><p>□ CCTV/penerangan</p><p>□ Informasi deteksi dini</p></div>
+ <div class="card full"><div class="wrap"><table><thead><tr><th>Waktu</th><th>Blok</th><th>Petugas</th><th>Level</th><th>Temuan</th><th>Tindak Lanjut</th><th>Aksi</th></tr></thead><tbody id="patrolRows"></tbody></table></div></div>
+</div></section>
+
+<section id="incidents" class="page"><div class="grid">
+ <div class="card half"><h2>Insiden Kamtib</h2><form id="incidentForm"><div class="form">
+ <div><label>Waktu</label><input id="incidentDate" type="datetime-local" required></div><div><label>Blok</label><select id="incidentBlock"></select></div>
+ <div><label>Jenis</label><select id="incidentType"><option>Perkelahian</option><option>Barang Terlarang</option><option>Pelanggaran Tata Tertib</option><option>Percobaan Pelarian</option><option>Gangguan Kesehatan/Darurat</option><option>Lainnya</option></select></div>
+ <div><label>Level</label><select id="incidentSeverity"><option>Rendah</option><option>Sedang</option><option>Tinggi</option></select></div>
+ <div class="span2"><label>Kronologi</label><textarea id="incidentDesc" required></textarea></div><div class="span2"><label>Tindak Lanjut</label><textarea id="incidentAction" required></textarea></div></div>
+ <button class="btn primary">Simpan Insiden</button></form></div>
+ <div class="card half"><h3>Prinsip</h3><p class="muted">Catat fakta, waktu, lokasi, tindakan awal, dan tindak lanjut. Hindari data pribadi yang tidak diperlukan.</p></div>
+ <div class="card full"><div class="wrap"><table><thead><tr><th>Waktu</th><th>Blok</th><th>Jenis</th><th>Level</th><th>Kronologi</th><th>Tindak Lanjut</th><th>Aksi</th></tr></thead><tbody id="incidentRows"></tbody></table></div></div>
+</div></section>
+
+<section id="reports" class="page"><div class="card"><h2>Laporan Ringkas</h2><div class="tools no-print"><button class="btn primary" onclick="window.print()">Cetak / PDF</button><button class="btn ok" onclick="exportCsv()">Ekspor CSV</button></div><div id="reportBody"></div></div></section>
+
+<section id="users" class="page"><div class="grid">
+ <div class="card half"><h2>Tambah Pengguna</h2><form id="userForm"><div class="form">
+ <div><label>Nama</label><input id="newName" required></div><div><label>Username</label><input id="newUsername" required></div>
+ <div><label>Password</label><input id="newPassword" type="password" minlength="8" required></div><div><label>Role</label><select id="newRole"><option value="operator">Operator</option><option value="kepala_kplp">Kepala KPLP</option><option value="admin">Admin</option></select></div></div>
+ <button class="btn primary">Tambah User</button></form></div>
+ <div class="card half"><h3>Hak Akses</h3><p><b>Admin:</b> seluruh menu dan manajemen user.</p><p><b>Kepala KPLP:</b> pengawasan, konfigurasi, audit, hapus data.</p><p><b>Operator:</b> input/edit blok, risiko WBP, kontrol, dan insiden.</p></div>
+ <div class="card full"><div class="wrap"><table><thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Status</th><th>Dibuat</th></tr></thead><tbody id="userRows"></tbody></table></div></div>
+</div></section>
+
+<section id="audit" class="page"><div class="card"><h2>Audit Log</h2><div class="wrap"><table><thead><tr><th>Waktu</th><th>User</th><th>Aksi</th><th>Entitas</th><th>ID</th><th>IP</th></tr></thead><tbody id="auditRows"></tbody></table></div></div></section>
+
+<section id="settings" class="page"><div class="grid"><div class="card half"><h2>Pengaturan Kapasitas</h2><form id="settingsForm"><label>Kapasitas Resmi</label><input id="setCap" type="number" min="1" required><label>Jumlah Penghuni</label><input id="setOcc" type="number" min="0" required><button class="btn primary" style="margin-top:10px">Simpan</button></form></div><div class="card half"><h3>Keamanan</h3><div class="alert">Untuk produksi gunakan HTTPS, password kuat, backup database, dan batasi akses ke jaringan/pengguna yang berwenang.</div></div></div></section>
+</main>
+</div>
+
+<script>
+let me=null, blocks=[], wbps=[], patrols=[], incidents=[];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+async function api(url,opt={}){
+ const r=await fetch(url,{credentials:'include',headers:{'Content-Type':'application/json',...(opt.headers||{})},...opt});
+ const data=await r.json().catch(()=>({}));
+ if(r.status===401){showLogin();throw Error(data.error||'Sesi berakhir');}
+ if(!r.ok) throw Error(data.error||'Gagal memproses data');
+ return data;
+}
+function toast(msg){alert(msg)}
+function showLogin(){ $('login').style.display='flex'; $('app').hidden=true; }
+function showApp(){ $('login').style.display='none'; $('app').hidden=false; }
+function roleUI(){
+ document.querySelectorAll('.adminOnly').forEach(x=>x.style.display=me.role==='admin'?'':'none');
+ document.querySelectorAll('.managerOnly').forEach(x=>x.style.display=['admin','kepala_kplp'].includes(me.role)?'':'none');
+ $('userLabel').textContent=`${me.name} (${me.role})`;
+}
+$('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault(); $('loginMsg').textContent='';
+ try{const d=await api('/api/auth/login',{method:'POST',body:JSON.stringify({username:$('loginUser').value,password:$('loginPass').value})});me=d.user;showApp();roleUI();await loadAll();}
+ catch(err){$('loginMsg').innerHTML=`<div class="alert">${esc(err.message)}</div>`}
+});
+async function logout(){try{await api('/api/auth/logout',{method:'POST'});}catch(e){} me=null;showLogin()}
+document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',async()=>{
+ document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(b.dataset.p).classList.add('active');
+ if(b.dataset.p==='reports')renderReport(); if(b.dataset.p==='users')await loadUsers(); if(b.dataset.p==='audit')await loadAudit();
+}));
+
+function riskBadge(s){return s>=13?'<span class="badge red">Tinggi</span>':s>=6?'<span class="badge yellow">Sedang</span>':'<span class="badge green">Rendah</span>'}
+function blockBadge(s){return +s>=4?'<span class="badge red">Tinggi</span>':+s>=2.8?'<span class="badge yellow">Sedang</span>':'<span class="badge green">Rendah</span>'}
+function fmt(d){return d?new Date(d).toLocaleString('id-ID'):'-'}
+function nowLocal(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}
+function fillBlockSelects(){
+ ['wbpBlock','patrolBlock','incidentBlock'].forEach(id=>{$(id).innerHTML='<option value="">-- Pilih --</option>'+blocks.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')})
+}
+async function loadAll(){
+ const [dash,b,w,p,i,s]=await Promise.all([api('/api/dashboard'),api('/api/blocks'),api('/api/wbp'),api('/api/patrols'),api('/api/incidents'),api('/api/settings')]);
+ blocks=b;wbps=w;patrols=p;incidents=i;renderDash(dash);fillBlockSelects();renderBlocks();renderWbp();renderPatrols();renderIncidents();
+ $('setCap').value=s.capacity;$('setOcc').value=s.occupants;$('patrolDate').value=nowLocal();$('incidentDate').value=nowLocal();
+}
+function renderDash(d){
+ const c=+d.settings.capacity,o=+d.settings.occupants,r=c?o/c*100:0,e=Math.max(0,o-c);
+ $('dCap').textContent=c.toLocaleString('id-ID');$('dOcc').textContent=o.toLocaleString('id-ID');$('dRate').textContent=r.toFixed(1)+'%';$('dExc').textContent=e.toLocaleString('id-ID');
+ $('dWbp').textContent=d.highWbp;$('dPat').textContent=d.patrol7;$('dInc').textContent=d.incident30;
+ $('dBlocks').innerHTML=d.blocks.length?d.blocks.map(b=>`<tr><td>${esc(b.name)}</td><td>${b.capacity}</td><td>${b.occupants}</td><td>${b.occupancy_rate}%</td><td>${b.risk_score}</td><td>${blockBadge(b.risk_score)}</td></tr>`).join(''):'<tr><td colspan=6>Belum ada data blok.</td></tr>';
+}
+function renderBlocks(){
+ $('blockRows').innerHTML=blocks.length?blocks.map(b=>`<tr><td>${esc(b.name)}</td><td>${b.capacity}</td><td>${b.occupants}</td><td>${b.occupancy_rate}%</td><td>${b.risk_score}</td><td>${blockBadge(b.risk_score)}</td><td><button class="btn" onclick="editBlock(${b.id})">Edit</button>${['admin','kepala_kplp'].includes(me.role)?` <button class="btn danger" onclick="delBlock(${b.id})">Hapus</button>`:''}</td></tr>`).join(''):'<tr><td colspan=7>Belum ada data.</td></tr>'
+}
+$('blockForm').addEventListener('submit',async e=>{e.preventDefault();try{
+ const d={name:$('blockName').value,capacity:+$('blockCap').value,occupants:+$('blockOcc').value,threat:+$('blockThreat').value,notes:$('blockNotes').value};
+ const id=$('blockId').value;await api(id?'/api/blocks/'+id:'/api/blocks',{method:id?'PUT':'POST',body:JSON.stringify(d)});resetBlock();await loadAll();
+}catch(err){toast(err.message)}});
+function resetBlock(){$('blockForm').reset();$('blockId').value='';$('blockThreat').value=3}
+function editBlock(id){const b=blocks.find(x=>+x.id===+id);$('blockId').value=b.id;$('blockName').value=b.name;$('blockCap').value=b.capacity;$('blockOcc').value=b.occupants;$('blockThreat').value=b.threat;$('blockNotes').value=b.notes||'';window.scrollTo({top:0,behavior:'smooth'})}
+async function delBlock(id){if(confirm('Hapus blok?')){try{await api('/api/blocks/'+id,{method:'DELETE'});await loadAll()}catch(e){toast(e.message)}}}
+
+function renderWbp(){$('wbpRows').innerHTML=wbps.length?wbps.map(w=>`<tr><td>${esc(w.identity_label)}</td><td>${esc(w.registration_no)}</td><td>${esc(w.block_name||'-')}</td><td>${w.risk_score}</td><td>${riskBadge(+w.risk_score)}</td><td>${esc(w.notes)}</td><td><button class="btn" onclick="editWbp(${w.id})">Edit</button>${['admin','kepala_kplp'].includes(me.role)?` <button class="btn danger" onclick="delWbp(${w.id})">Hapus</button>`:''}</td></tr>`).join(''):'<tr><td colspan=7>Belum ada data.</td></tr>'}
+$('wbpForm').addEventListener('submit',async e=>{e.preventDefault();try{
+ const d={identity_label:$('wbpName').value,registration_no:$('wbpReg').value,block_id:$('wbpBlock').value||null,violation:+$('wbpV').value,conflict:+$('wbpC').value,escape:+$('wbpE').value,contraband:+$('wbpB').value,notes:$('wbpNotes').value};
+ const id=$('wbpId').value;await api(id?'/api/wbp/'+id:'/api/wbp',{method:id?'PUT':'POST',body:JSON.stringify(d)});resetWbp();await loadAll();
+}catch(err){toast(err.message)}});
+function resetWbp(){$('wbpForm').reset();$('wbpId').value='';['wbpV','wbpC','wbpE','wbpB'].forEach(x=>$(x).value=0)}
+function editWbp(id){const w=wbps.find(x=>+x.id===+id);$('wbpId').value=w.id;$('wbpName').value=w.identity_label;$('wbpReg').value=w.registration_no;$('wbpBlock').value=w.block_id||'';$('wbpV').value=w.violation;$('wbpC').value=w.conflict;$('wbpE').value=w.escape;$('wbpB').value=w.contraband;$('wbpNotes').value=w.notes||'';window.scrollTo({top:0,behavior:'smooth'})}
+async function delWbp(id){if(confirm('Hapus data WBP?')){try{await api('/api/wbp/'+id,{method:'DELETE'});await loadAll()}catch(e){toast(e.message)}}}
+
+function renderPatrols(){$('patrolRows').innerHTML=patrols.length?patrols.map(p=>`<tr><td>${fmt(p.occurred_at)}</td><td>${esc(p.block_name||'-')}</td><td>${esc(p.officer)}</td><td>${esc(p.level)}</td><td>${esc(p.finding)}</td><td>${esc(p.action)}</td><td>${['admin','kepala_kplp'].includes(me.role)?`<button class="btn danger" onclick="delPatrol(${p.id})">Hapus</button>`:''}</td></tr>`).join(''):'<tr><td colspan=7>Belum ada kontrol.</td></tr>'}
+$('patrolForm').addEventListener('submit',async e=>{e.preventDefault();try{
+ await api('/api/patrols',{method:'POST',body:JSON.stringify({occurred_at:$('patrolDate').value,block_id:$('patrolBlock').value||null,officer:$('patrolOfficer').value,level:$('patrolLevel').value,finding:$('patrolFinding').value,action:$('patrolAction').value})});
+ $('patrolForm').reset();$('patrolDate').value=nowLocal();await loadAll()}catch(e){toast(e.message)}});
+async function delPatrol(id){if(confirm('Hapus catatan kontrol?')){try{await api('/api/patrols/'+id,{method:'DELETE'});await loadAll()}catch(e){toast(e.message)}}}
+
+function renderIncidents(){$('incidentRows').innerHTML=incidents.length?incidents.map(i=>`<tr><td>${fmt(i.occurred_at)}</td><td>${esc(i.block_name||'-')}</td><td>${esc(i.incident_type)}</td><td>${i.severity==='Tinggi'?'<span class="badge red">Tinggi</span>':i.severity==='Sedang'?'<span class="badge yellow">Sedang</span>':'<span class="badge green">Rendah</span>'}</td><td>${esc(i.description)}</td><td>${esc(i.action)}</td><td>${['admin','kepala_kplp'].includes(me.role)?`<button class="btn danger" onclick="delIncident(${i.id})">Hapus</button>`:''}</td></tr>`).join(''):'<tr><td colspan=7>Belum ada insiden.</td></tr>'}
+$('incidentForm').addEventListener('submit',async e=>{e.preventDefault();try{
+ await api('/api/incidents',{method:'POST',body:JSON.stringify({occurred_at:$('incidentDate').value,block_id:$('incidentBlock').value||null,incident_type:$('incidentType').value,severity:$('incidentSeverity').value,description:$('incidentDesc').value,action:$('incidentAction').value})});
+ $('incidentForm').reset();$('incidentDate').value=nowLocal();await loadAll()}catch(e){toast(e.message)}});
+async function delIncident(id){if(confirm('Hapus insiden?')){try{await api('/api/incidents/'+id,{method:'DELETE'});await loadAll()}catch(e){toast(e.message)}}}
+
+$('settingsForm').addEventListener('submit',async e=>{e.preventDefault();try{await api('/api/settings',{method:'PUT',body:JSON.stringify({capacity:+$('setCap').value,occupants:+$('setOcc').value})});await loadAll();toast('Pengaturan disimpan.')}catch(e){toast(e.message)}})
+
+async function loadUsers(){try{const u=await api('/api/users');$('userRows').innerHTML=u.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.username)}</td><td>${esc(x.role)}</td><td>${x.is_active?'Aktif':'Nonaktif'}</td><td>${fmt(x.created_at)}</td></tr>`).join('')}catch(e){toast(e.message)}}
+$('userForm').addEventListener('submit',async e=>{e.preventDefault();try{await api('/api/users',{method:'POST',body:JSON.stringify({name:$('newName').value,username:$('newUsername').value,password:$('newPassword').value,role:$('newRole').value})});$('userForm').reset();await loadUsers();toast('Pengguna ditambahkan.')}catch(e){toast(e.message)}})
+async function loadAudit(){try{const a=await api('/api/audit');$('auditRows').innerHTML=a.map(x=>`<tr><td>${fmt(x.created_at)}</td><td>${esc(x.username||'-')}</td><td>${esc(x.action)}</td><td>${esc(x.entity)}</td><td>${esc(x.entity_id||'-')}</td><td>${esc(x.ip||'-')}</td></tr>`).join('')}catch(e){toast(e.message)}}
+
+function renderReport(){
+ const c=+$('dCap').textContent.replace(/\D/g,''),o=+$('dOcc').textContent.replace(/\D/g,'');
+ $('reportBody').innerHTML=`<p><b>Tanggal:</b> ${new Date().toLocaleString('id-ID')}</p><p><b>Kapasitas:</b> ${c} | <b>Penghuni:</b> ${o} | <b>Tingkat hunian:</b> ${$('dRate').textContent} | <b>Kelebihan:</b> ${$('dExc').textContent}</p><p><b>WBP risiko tinggi:</b> ${$('dWbp').textContent} | <b>Kontrol 7 hari:</b> ${$('dPat').textContent} | <b>Insiden 30 hari:</b> ${$('dInc').textContent}</p><h3>Blok Prioritas</h3><table><thead><tr><th>Blok</th><th>Hunian</th><th>Skor Risiko</th></tr></thead><tbody>${blocks.slice().sort((a,b)=>+b.risk_score-+a.risk_score).map(b=>`<tr><td>${esc(b.name)}</td><td>${b.occupancy_rate}%</td><td>${b.risk_score}</td></tr>`).join('')}</tbody></table>`;
+}
+function exportCsv(){const rows=[['Blok','Kapasitas','Penghuni','Tingkat Hunian','Skor Risiko'],...blocks.map(b=>[b.name,b.capacity,b.occupants,b.occupancy_rate,b.risk_score])];const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='siperkasa_lajer_laporan.csv';a.click();URL.revokeObjectURL(a.href)}
+
+(async function boot(){try{const d=await api('/api/auth/me');me=d.user;showApp();roleUI();await loadAll()}catch(e){showLogin()}})();
+</script>
+</body></html>
